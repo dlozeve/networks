@@ -24,8 +24,8 @@
     (pos-x-set! v (random))
     (pos-y-set! v (random)))
   (let* ([k (sqrt (/ 1 (length (get-vertices g))))]) ; Optimal distance between vertices
-    (for* ([i (in-range iterations)]
-	   [temp (in-range 0.1 0 (/ 0.1 iterations))]) ; Linear cooldown (initial temperature = 0.1)
+    (for ([i (in-range iterations)]
+	  [temp (in-range 0.1 0 (- (/ 0.1 iterations)))]) ; Linear cooldown (initial temperature = 0.1)
       ;; Calculate the repulsive forces
       (for ([v (in-vertices g)])
 	(for ([u (in-vertices g)])
@@ -46,8 +46,8 @@
 		   [attraction (attractive-force k delta-norm)])
 	      (disp-x-set! v (- (disp-x v) (* attraction (/ delta-x delta-norm))))
 	      (disp-y-set! v (- (disp-y v) (* attraction (/ delta-y delta-norm))))
-	      (disp-x-set! u (- (disp-x u) (* attraction (/ delta-x delta-norm))))
-	      (disp-y-set! u (- (disp-y u) (* attraction (/ delta-y delta-norm))))))))
+	      (disp-x-set! u (+ (disp-x u) (* attraction (/ delta-x delta-norm))))
+	      (disp-y-set! u (+ (disp-y u) (* attraction (/ delta-y delta-norm))))))))
       ;; Limit max displacement to temperature temp and prevent from
       ;; displacement outside the frame
       (for ([v (in-vertices g)])
@@ -55,7 +55,7 @@
 	  (pos-x-set! v (+ (pos-x v) (* (/ (disp-x v) disp-norm) (min disp-norm temp))))
 	  (pos-y-set! v (+ (pos-y v) (* (/ (disp-y v) disp-norm) (min disp-norm temp))))
 	  (pos-x-set! v (min 1 (max 0 (pos-x v))))
-	  (pos-y-set! v (min 1 (max 0 (pos-y v)))))))
+	  (pos-y-set! v (min 1 (max 0 (pos-y v))))))))
     ;; Return the positions in a single hashtable
-    (for/hash ([v (in-vertices g)])
-      (values v (vector (pos-x v) (pos-y v))))))
+  (for/hash ([v (in-vertices g)])
+    (values v (vector (pos-x v) (pos-y v)))))
