@@ -1,6 +1,7 @@
 #lang racket/gui
 
 (require racket/match
+	 racket/list
 	 graph)
 (require "random.rkt"
 	 "layout.rkt")
@@ -17,8 +18,9 @@
 	      (* width (vector-ref (hash-ref layout u) 0)) (* height (vector-ref (hash-ref layout u) 1))
 	      (* width (vector-ref (hash-ref layout v) 0)) (* height (vector-ref (hash-ref layout v) 1)))))))
 
-(define iterations 1000000)
-(define g (barabasi-albert 50 2))
+(define iterations 500)
+(define g (stochastic-block-model 50 (regular-partition (range 50) 5) (in-out-matrix 5 1 0.1)))
+;; (define g (barabasi-albert 50 1))
 (define layout (fruchterman-reingold g iterations))
 
 (define frame (new frame%
