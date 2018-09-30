@@ -14,20 +14,18 @@
 (define (repulsive-force k x)
   (/ (* k k) x))
 
-(define (fruchterman-reingold g width height iterations)
+(define (fruchterman-reingold g iterations)
   (define-vertex-property g pos-x) ; Position
   (define-vertex-property g pos-y) ; Position
   (define-vertex-property g disp-x #:init 0) ; Displacement
   (define-vertex-property g disp-y #:init 0) ; Displacement
   ;; Initialize with random positions
   (for ([v (in-vertices g)])
-    (pos-x-set! v (- (* (random) width) (/ width 2)))
-    (pos-y-set! v (- (* (random) width) (/ width 2))))
-  (let* ([area (* width height)] ; Area of the frame
-	 [k (sqrt (/ area (length (get-vertices g))))]) ; Optimal distance between vertices
+    (pos-x-set! v (random))
+    (pos-y-set! v (random)))
+  (let* ([k (sqrt (/ 1 (length (get-vertices g))))]) ; Optimal distance between vertices
     (for* ([i (in-range iterations)]
-	   [initial-temp (min (/ width 10) (/ height 10))] ; Initial temperature
-	   [temp (in-range initial-temp 0 (/ initial-temp iterations))]) ; Linear cooldown
+	   [temp (in-range 0.1 0 (/ 0.1 iterations))]) ; Linear cooldown (initial temperature = 0.1)
       ;; Calculate the repulsive forces
       (for ([v (in-vertices g)])
 	(for ([u (in-vertices g)])
@@ -56,8 +54,8 @@
 	(let ([disp-norm (norm (disp-x v) (disp-y v))])
 	  (pos-x-set! v (+ (pos-x v) (* (/ (disp-x v) disp-norm) (min disp-norm temp))))
 	  (pos-y-set! v (+ (pos-y v) (* (/ (disp-y v) disp-norm) (min disp-norm temp))))
-	  (pos-x-set! v (min (/ width 2) (max (- (/ width 2)) (pos-x v))))
-	  (pos-y-set! v (min (/ width 2) (max (- (/ width 2)) (pos-y v)))))))
+	  (pos-x-set! v (min 1 (max 0 (pos-x v))))
+	  (pos-y-set! v (min 1 (max 0 (pos-y v)))))))
     ;; Return the positions in a single hashtable
     (for/hash ([v (in-vertices g)])
       (values v (vector (pos-x v) (pos-y v))))))
